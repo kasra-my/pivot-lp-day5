@@ -168,10 +168,84 @@ class Validation
 
 	private function extractAndValidateOpcode(array $opcode, int $count)
 	{
-		
+		$errorMsgs = [];
+		switch ($count) {
+			case 5:
+				$this->firstOp  =  (int)($opcode[3] . $opcode[4]);
+				$this->secondOp =  (int)$opcode[2];
+				$this->thirdOp  =  (int)$opcode[1];
+				$this->forthOp  =  (int)$opcode[0];
+
+				if (!in_array($this->firstOp, self::VALID_OPCODES)){
+					$errorMsgs[] = self::INVALID_OP_CODE;
+				}
+				$this->isValidMode($this->secondOp) ==='' ?: $errorMsgs[] = $this->isValidMode($this->secondOp);
+				$this->isValidMode($this->thirdOp)  ==='' ?: $errorMsgs[] = $this->isValidMode($this->thirdOp);
+				$this->isValidMode($this->forthOp)  ==='' ?: $errorMsgs[] = $this->isValidMode($this->forthOp);
+
+				// !$this->findHaltCode($this->firstOp, self::TERMINATION_CODE) ?: $errorMsgs[] = self::TERMINATION_CODE_ERR;
+
+				return $errorMsgs;
+			case 4:
+				$this->firstOp   =  (int)($opcode[2] . $opcode[3]);
+				$this->secondOp  =  (int)$opcode[1];
+				$this->thirdOp   =  (int)$opcode[0];
+
+				if (!in_array((int)$this->firstOp, self::VALID_OPCODES)){
+					$errorMsgs[] = self::INVALID_OP_CODE;
+				}
+				$this->isValidMode($this->secondOp)  ==='' ?: $errorMsgs[] = $this->isValidMode($this->secondOp);
+				$this->isValidMode($this->thirdOp) ==='' ?: $errorMsgs[] = $this->isValidMode($this->thirdOp);
+
+				// !$this->findHaltCode($this->firstOp, self::TERMINATION_CODE) ?: $errorMsgs[] = self::TERMINATION_CODE_ERR;
+				
+				return $errorMsgs;
+			case 3:
+				$this->firstOp   = (int)($opcode[1] . $opcode[2]);
+				$this->secondOp  =  (int)$opcode[0];
+
+				if (!in_array((int)$this->firstOp, self::VALID_OPCODES)){
+					$errorMsgs[] = self::INVALID_OP_CODE;
+				}
+				$this->isValidMode($this->secondOp) ==='' ?: $errorMsgs[] = $this->isValidMode($this->secondOp);
+				
+				// !$this->findHaltCode($this->firstOp, self::TERMINATION_CODE) ?: $errorMsgs[] = self::TERMINATION_CODE_ERR;
+
+				return $errorMsgs;
+			case 2:
+				$this->firstOp  = (int)($opcode[0] . $opcode[1]);
+
+				if (!in_array((int)$this->firstOp, self::VALID_OPCODES)){
+					$errorMsgs[] = self::INVALID_OP_CODE;
+				}
+
+				// !$this->findHaltCode($this->firstOp, self::TERMINATION_CODE) ?: $errorMsgs[] = self::TERMINATION_CODE_ERR;
+
+				return $errorMsgs;
+			case 1:
+				$this->firstOp  = (int)$opcode[0];
+				$this->isValidMode($this->firstOp) ==='' ?: $errorMsgs[] = $this->isValidMode((int)$opcode[0]);
+
+					// !$this->findHaltCode($this->firstOp, self::TERMINATION_CODE) ?: $errorMsgs[] = self::TERMINATION_CODE_ERR;
+
+				return $errorMsgs;
+			
+			default:
+				$errorMsgs[]="Something went wrong! Your opcode is not recognised!";
+				return $errorMsgs;
+		}
 	}
 
+	private function isValidMode(int $mode)
+	{
+		if ($mode !== 0 && $mode !==1){
+			return self::MODE_ERROR . $mode;
+		}
 
+		return '';
+	}
+
+	
 
 }
 
