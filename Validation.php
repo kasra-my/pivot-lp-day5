@@ -11,16 +11,15 @@ class Validation
 
 	use HaltCodePosition;
 
-	public const LIMIT    	                = 100;
-	public const TERMINATION_CODE           = 99;
+	public const LIMIT    	         		= 100;
+	public const TERMINATION_CODE    		= 99;
 	public const TERMINATION_CODE_ERR 		= 'No halt code (99) found in your entry!';
 
 	public const VALID_OPCODES       		= [1,2,3,4,99];
 	public const MODE_ERROR          		= 'Your mode input is invalid for: ';
 
-
 	private const NOT_INT_ENTRY    			= "Your input is invalid for: ";
-	private const INVALID_OP_CODE 			= "Something went wrong. Opcode must be 1, 2 or 99!";
+	private const INVALID_OP_CODE 			= "Something went wrong. Opcode must be 1, 2, 3, 4 or 99!";
 
 
 	public const INVALID_OPERATTIONS		= "Please notice operations that end of with invalid results are ignored so you will see the same thing as you entered. For example, if the result of add/multiple is greater than the Intcode array count, it will be ignored because that index key is not available! Also, the halt code value (99) will never overwritten!";
@@ -39,8 +38,6 @@ class Validation
 	private $secondOp = 0;
 	private $thirdOp  = 0;
 	private $forthOp  = 0;
-
-
 	/**
 	 *  
 	 * @param $userInput
@@ -69,7 +66,7 @@ class Validation
 		// Check whether there is enough intcode (at least 5)
 		if ( !empty($this->isThereEnoughIntCode()) ){
 			return $this->isThereEnoughIntCode();
-		}	
+		}
 
 		/**
 		* Check positions of ABCDE of the opcode
@@ -81,15 +78,11 @@ class Validation
 
 		/** 
 		* Checks whether the values of 1st, 2nd and 3rd 
-		* positions are valid in the given input intcodes array
+		* positions are valid based on the position/immediate mode
 		*/
-		if ( !empty($this->isValidPosition()) ){
-			return $this->isValidPosition();
-		}			
-
-		if ( !empty($this->isValidOpcode()) ){
-			return $this->isValidOpcode();
-		}				
+		if ( !empty($this->isValidInputs()) ){
+			return $this->isValidInputs();
+		}						
 
 		return [];
 	}
@@ -104,7 +97,7 @@ class Validation
 		$errorMsgs = [];
 		// Are inputs integer?
 		foreach ($this->intCodes as $key => $value) {
-			if(preg_replace('/[^0-9]/', '', $value) === ""){
+			if(preg_replace('/[^\d-]+/', '', $value) === ""){
 				$errorMsgs[] = self::NOT_INT_ENTRY . '"' . $value . '"'; 
 			}
 		}
@@ -141,9 +134,7 @@ class Validation
 
 
 	/**
-	* Check termination opcode (99) is available in the
-	* user input and it is in the right position. Also checks 
-	* the opcode is not anything else other than 1 and 2
+	* Check positions of ABCDE of the opcode
 	*
 	*/
 	private function isValidOpcode()
@@ -163,6 +154,7 @@ class Validation
 		}
 
 		return $errorMsgs;
+
 	}
 
 
@@ -245,8 +237,45 @@ class Validation
 		return '';
 	}
 
-	
+	/**
+	* Checks whether the values of 1st, 2nd and 3rd 
+	* positions are valid in the given input intcodes array
+	*/
+	private function isValidInputs()
+	{
+		$errorMsgs =[];
 
+		$chunkOfFour = array_chunk($this->intCodes, 4);
+		foreach ($chunkOfFour as $key => $chunk) {
+			if(!empty($this->validateInputValues($chunk))) {
+				$errorMsgs = array_merge($errorMsgs , $this->validateInputValues($chunk));
+			}
+
+		}
+		return $errorMsgs;
+	}
+
+	/**
+	* This method validates values after opcode based on their 
+	* position/immediate mode
+	*/
+	private function validateInputValues(array $chunk)
+	{
+		$errorMsgs = [];
+		if(isset($chunk[1]) && ($this->secondOp === 0) && (int)$chunk[1] < 0){
+			$errorMsgs[] = 'This value "' . $chunk[1] .'" cannot be negative as you defined immediate mode for that!';
+		}
+
+		if(isset($chunk[2]) && ($this->thirdOp === 0) && (int)$chunk[2] < 0){
+			$errorMsgs[] = 'This value "' . $chunk[2] .'" cannot be negative as you defined immediate mode for that!';
+		}
+
+		if(isset($chunk[3]) && ($this->forthOp === 0) && (int)$chunk[3] < 0){
+			$errorMsgs[] = 'This value "' . $chunk[3] .'" cannot be negative as you defined immediate mode for that!';
+		}
+	
+		return $errorMsgs;
+	}
 }
 
 
