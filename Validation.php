@@ -11,8 +11,13 @@ class Validation
 
 	use HaltCodePosition;
 
-	public const LIMIT    	        = 100;
-	public const TERMINATION_CODE    = 99;
+	public const LIMIT    	                = 100;
+	public const TERMINATION_CODE           = 99;
+	public const TERMINATION_CODE_ERR 		= 'No halt code (99) found in your entry!';
+
+	public const VALID_OPCODES       		= [1,2,3,4,99];
+	public const MODE_ERROR          		= 'Your mode input is invalid for: ';
+
 
 	private const NOT_INT_ENTRY    			= "Your input is invalid for: ";
 	private const INVALID_OP_CODE 			= "Something went wrong. Opcode must be 1, 2 or 99!";
@@ -29,6 +34,11 @@ class Validation
 	* @var array
 	*/
 	private $intCodes;
+
+	private $firstOp  = 0;
+	private $secondOp = 0;
+	private $thirdOp  = 0;
+	private $forthOp  = 0;
 
 
 	/**
@@ -59,17 +69,10 @@ class Validation
 		// Check whether there is enough intcode (at least 5)
 		if ( !empty($this->isThereEnoughIntCode()) ){
 			return $this->isThereEnoughIntCode();
-		}
-
-		// Check all numbers are smaller than limit (100)
-		if ( !empty($this->isSmallerThanLimit()) ){
-			return $this->isSmallerThanLimit();
-		}		
+		}	
 
 		/**
-		* Check termination opcode (99) is available in the
-		* user input and it is in the right position. Also checks 
-		* the opcode is not anything else other than 1 and 2
+		* Check positions of ABCDE of the opcode
 		*
 		*/
 		if ( !empty($this->isValidOpcode()) ){
@@ -145,57 +148,27 @@ class Validation
 	*/
 	private function isValidOpcode()
 	{
-		$foundHaltCode = false;
 		$errorMsgs =[];
 
 		$chunkOfFour = array_chunk($this->intCodes, 4);
 		foreach ($chunkOfFour as $key => $chunk) {
 
-			if (isset($chunk[0]) && $chunk[0] == self::TERMINATION_CODE){
+			// extract opcodes
+			$opcode = str_split($chunk[0]);
 
-				$foundHaltCode = true;
+			$opcodeCount = count($opcode);
 
-			}elseif(isset($chunk[0]) && ($chunk[0] != 1 && $chunk[0] != 2)){
-
-				$errorMsgs[]= 'Your opcode is invalid for: "' . $chunk[0] .'" '. self::INVALID_OP_CODE;
-
-			}
+			$errorMsgs = $this->extractAndValidateOpcode($opcode, $opcodeCount);
 
 		}
 
-		if (!$foundHaltCode){
-			$errorMsgs[]="Something went wrong! No termination opcode (99) found in the right position!";
-		}
 		return $errorMsgs;
 	}
 
 
-	/**
-	* Checks whether the values of 1st, 2nd and 3rd 
-	* positions are valid in the given input intcodes array
-	*/
-	private function isValidPosition()
+	private function extractAndValidateOpcode(array $opcode, int $count)
 	{
-		$countOfIntcodes = count($this->intCodes);
-		$errorMsgs =[];
-
-		$haltCodePosition = $this->getHaltCodePosition($this->intCodes, Validation::TERMINATION_CODE);
 		
-		// Only the position of intcodes before halt code (99) needs to be validated
-		$beforeHaltCode = array_slice($this->intCodes, 0, $haltCodePosition);
-
-
-		$chunkOfFour = array_chunk($beforeHaltCode, 4);
-
-		foreach ($chunkOfFour as $key => $chunk) {
-
-			if (isset($chunk[3]) && $chunk[3] > $countOfIntcodes){
-
-				$errorMsgs[] = 'The position of "' . $chunk[3] . '" is not available in your given intcodes!';
-			}
-		}
-
-		return $errorMsgs;
 	}
 
 

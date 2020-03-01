@@ -5,8 +5,11 @@
 
 ?>
 		<div class="container">
+		  <br>
+		  <br>
+		  <br>
 		  <div class="row">
-			<h1>Code challeng - Pivot Professional Learning</h1>
+			<h1 style="background-color:lightblue; padding:10px;">Code challeng - Pivot Professional Learning DAY 5</h1>
 			<br>
 			<br>
 			<br>
@@ -45,27 +48,28 @@
 
 					$validator        = new Validation($userInput);
 					$validationErrors = $validator->validate();
-					
-					if (empty($validationErrors)){
-						$gravityAssist = new GravityAssist($userInput);
-						$gravityAssist->process();
+				print_r($validationErrors);
+				
+					// if (empty($validationErrors)){
+					// 	$gravityAssist = new GravityAssist($userInput);
+					// 	$gravityAssist->process();
 
-						echo '<div style="background-color:#0CA73A; padding: 5px; font-weight:bold;">' . Validation::INVALID_OPERATTIONS . '</div><br><br>';
-						echo '<div style="color:blue; padding: 5px; font-weight:bold;">The new result is: ' . str_replace('"', "", $gravityAssist->report());
+					// 	echo '<div style="background-color:#0CA73A; padding: 5px; font-weight:bold;">' . Validation::INVALID_OPERATTIONS . '</div><br><br>';
+					// 	echo '<div style="color:blue; padding: 5px; font-weight:bold;">The new result is: ' . str_replace('"', "", $gravityAssist->report());
 
 
-					} else {
-						// Display all error messages here:
-						echo "<ul>";
+					// } else {
+					// 	// Display all error messages here:
+					// 	echo "<ul>";
 
-						foreach ($validationErrors as $key => $error) {
-							echo '<li class="list-group-item list-group-item-danger">';
-							echo $error;
-							echo '</li>';
-						}
+					// 	foreach ($validationErrors as $key => $error) {
+					// 		echo '<li class="list-group-item list-group-item-danger">';
+					// 		echo $error;
+					// 		echo '</li>';
+					// 	}
 
-						echo "</ul>";
-					}
+					// 	echo "</ul>";
+					// }
 
 				}  
 
